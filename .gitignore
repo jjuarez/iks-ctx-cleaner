@@ -4,6 +4,7 @@
 ### Go ###
 # Binaries for programs and plugins
 bin/**
+dist/**
 *.exe
 *.exe~
 *.dll
