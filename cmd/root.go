@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/jjuarez/iks-ctx-cleaner/errors"
+	"github.com/jjuarez/iks-ctx-cleaner/codes"
 	"github.com/jjuarez/iks-ctx-cleaner/model"
 	"github.com/spf13/cobra"
 
@@ -15,58 +15,67 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func loadYAML(fileName string, kubeConfig *model.KubeConfig) {
+func loadFile(fileName string) []byte {
+	var err error
 	var fileContent []byte
-	var fileError error
 
 	if fileName == "-" || fileName == "" {
-		fileContent, fileError = ioutil.ReadAll(os.Stdin)
-		if fileError != nil {
-			exit("Something went wrong reading from stdin", errors.ReadError)
+		fileContent, err = ioutil.ReadAll(os.Stdin)
+		if err != nil {
+			exit("Something went wrong reading from stdin", codes.ReadError)
 		}
-	} else {
-		fileContent, fileError = ioutil.ReadFile(fileName)
-		if fileError != nil {
-			exit(fmt.Sprintf("Something went wrong reading from file: %s", fileName), errors.ReadError)
-		}
-	}
 
-	err := yaml.Unmarshal(fileContent, &kubeConfig)
-	if err != nil {
-		exit(fmt.Sprintf("Error: %v", err), errors.UnmarshalError)
+		return fileContent
+	} else {
+		fileContent, err = ioutil.ReadFile(fileName)
+		if err != nil {
+			exit(fmt.Sprintf("Something went wrong reading from file: %s", fileName), codes.ReadError)
+		}
+
+		return fileContent
 	}
 }
 
-func cleanUp(kubeConfig *model.KubeConfig) {
+func unmarshalYAML(fileContent []byte) model.KubeConfig {
+	kubeConfig := model.KubeConfig{}
+	err := yaml.Unmarshal(fileContent, &kubeConfig)
+	if err != nil {
+		exit(fmt.Sprintf("Error: %v", err), codes.UnmarshalError)
+	}
+
+	return kubeConfig
+}
+
+func cleanupYAML(kubeConfig model.KubeConfig) model.KubeConfig {
+	cleanKubeConfig := kubeConfig
 	maxContexts := len(kubeConfig.Contexts)
 
 	for i := 0; i < maxContexts; i++ {
 		idx := strings.Index(kubeConfig.Contexts[i].Name, "/")
-
 		if idx != -1 {
-			kubeConfig.Contexts[i].Name = kubeConfig.Contexts[i].Name[0:idx]
+			cleanKubeConfig.Contexts[i].Name = kubeConfig.Contexts[i].Name[0:idx]
 		}
 	}
 
 	if kubeConfig.CurrentContext != "" {
 		idx := strings.Index(kubeConfig.CurrentContext, "/")
-
 		if idx != -1 {
-			kubeConfig.CurrentContext = kubeConfig.CurrentContext[0:idx]
+			cleanKubeConfig.CurrentContext = kubeConfig.CurrentContext[0:idx]
 		}
 	}
+
+	return cleanKubeConfig
 }
 
-func showYAML(kubeConfig model.KubeConfig) {
+func marshalYAML(kubeConfig model.KubeConfig) string {
 	output, err := yaml.Marshal(kubeConfig)
 	if err != nil {
-		exit(fmt.Sprintf("Error: %v", err), errors.MarshalError)
+		exit(fmt.Sprintf("Error: %v", err), codes.MarshalError)
 	}
-
-	fmt.Print(string(output))
+	return string(output)
 }
 
-func exit(message string, exitCode errors.Code) {
+func exit(message string, exitCode codes.Code) {
 	log.Println(message)
 	os.Exit(int(exitCode))
 }
@@ -78,11 +87,7 @@ var rootCmd = &cobra.Command{
 	Short: "IKS context cleaner",
 	Long:  "Small utility to clean the IBMCloud IKS kubeconfig context names",
 	Run: func(cmd *cobra.Command, args []string) {
-		kubeConfig := model.KubeConfig{}
-
-		loadYAML(InputFile, &kubeConfig)
-		cleanUp(&kubeConfig)
-		showYAML(kubeConfig)
+		fmt.Print(marshalYAML(cleanupYAML(unmarshalYAML(loadFile(InputFile)))))
 		os.Exit(0)
 	},
 }
@@ -93,7 +98,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVarP(&InputFile, "file", "f", "-", "Input file to clean")
+	rootCmd.PersistentFlags().StringVarP(&InputFile, "file", "f", "", "Input file to clean")
 }
 
 func initConfig() {
