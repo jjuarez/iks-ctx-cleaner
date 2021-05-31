@@ -22,7 +22,7 @@ THE SOFTWARE.
 package main
 
 import (
-	"iksctxcleaner/cmd"
+	"github.com/jjuarez/iks-ctx-cleaner/cmd"
 )
 
 func main() {

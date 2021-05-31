@@ -1,4 +1,4 @@
-module iksctxcleaner
+module github.com/jjuarez/iks-ctx-cleaner
 
 go 1.16
 
