@@ -52,15 +52,18 @@ type Users []struct {
 	User User   `yaml:"user,omitempty"`
 }
 
+type Preferences struct {
+}
+
 //
 // KubeConfig structure
 //
 type KubeConfig struct {
-	ApiVersion     string   `yaml:"apiVersion,omitempty"`
-	Kind           string   `yaml:"kind,omitempty"`
-	Preferences    struct{} `yaml:"preferences,omitempty"`
-	Clusters       Clusters `yaml:"clusters,omitempty"`
-	Contexts       Contexts `yaml:"contexts,omitempty"`
-	CurrentContext string   `yaml:"current-context,omitempty"`
-	Users          Users    `yaml:"users,omitempty"`
+	ApiVersion     string      `yaml:"apiVersion,omitempty"`
+	Kind           string      `yaml:"kind,omitempty"`
+	Preferences    Preferences `yaml:"preferences,omitempty"`
+	Clusters       Clusters    `yaml:"clusters,omitempty"`
+	Contexts       Contexts    `yaml:"contexts,omitempty"`
+	CurrentContext string      `yaml:"current-context,omitempty"`
+	Users          Users       `yaml:"users,omitempty"`
 }
