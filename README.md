@@ -27,16 +27,10 @@
   <h3 align="center">IKS Context Cleaner</h3>
 
   <p align="center">
-    An awesome README template to jumpstart your projects!
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
+    A little utility to make your IKS work a bit better
+    <a href="https://github.com/jjuarez/iks-ctx-cleaner/issues">Report Bug</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
+    <a href="https://github.com/jjuarez/iks-ctx-cleaner/issues">Request Feature</a>
   </p>
 </p>
 
@@ -59,7 +53,6 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -116,13 +109,6 @@ Just download a copy of the releases for your OS
 ibmcloud ks cluster config --cluster my_iks_cluster -q --output yaml | ikscc > ${HOME}/.kube/config
 ```
 
-
-<!-- ROADMAP -->
-## Roadmap
-
-See the [open issues](https://github.com/jjuarez/iks-ctx-cleaner/issues) for a list of proposed features (and known issues).
-
-
 <!-- CONTRIBUTING -->
 ## Contributing
 
@@ -135,12 +121,10 @@ Contributions are what make the open source community such an amazing place to b
 5. Open a Pull Request
 
 
-
 <!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
 
 
 <!-- CONTACT -->
