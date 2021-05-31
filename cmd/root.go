@@ -28,116 +28,79 @@ import (
 	"os"
 	"strings"
 
+	"github.com/jjuarez/iks-ctx-cleaner/errors"
+	"github.com/jjuarez/iks-ctx-cleaner/model"
 	"github.com/spf13/cobra"
 
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 )
 
-/*
- * Cluster configuration structure
- */
-type Cluster struct {
-	CertificateAuthorityData string `yaml:"certificate-authority-data,omitempty"`
-	Server                   string `yaml:"server,omitempty"`
-}
+func readFile(fileName string) []byte {
+	if fileName == "-" || fileName == "" {
+		fileContent, fileError := ioutil.ReadAll(os.Stdin)
+		if fileError != nil {
+			exit("Something went wrong reading from stdin", errors.ReadError)
+		}
 
-type Clusters []struct {
-	Cluster Cluster `yaml:"cluster,omitempty"`
-	Name    string  `yaml:"name,omitempty"`
-}
+		return fileContent
+	} else {
+		fileContent, fileError := ioutil.ReadFile(fileName)
+		if fileError != nil {
+			exit(fmt.Sprintf("Something went wrong reading from file: %s", fileName), errors.ReadError)
+		}
 
-/*
- * Context configuration structure
- */
-type Context struct {
-	Cluster   string `yaml:"cluster,omitempty"`
-	Namespace string `yaml:"namespace,omitempty"`
-	User      string `yaml:"user,omitempty"`
-}
-
-type Contexts []struct {
-	Context Context `yaml:"context,omitempty"`
-	Name    string  `yaml:"name,omitempty"`
-}
-
-/*
- * Users configuration structure
- */
-type UsersConfig struct {
-	ClientId     string `yaml:"client-id,omitempty"`
-	ClientSecret string `yaml:"client-secret,omitempty"`
-	IdToken      string `yaml:"id-token,omitempty"`
-	IdpIssueURL  string `yaml:"idp-issuer-url,omitempty"`
-	RefreshToken string `yaml:"refresh-token,omitempty"`
-}
-
-type UsersAuthProvider struct {
-	Config UsersConfig `yaml:"config,omitempty"`
-	Name   string      `yaml:"name,omitempty"`
-}
-
-type User struct {
-	AuthProvider UsersAuthProvider `yaml:"auth-provider,omitempty"`
-}
-
-type Users []struct {
-	Name string `yaml:"name,omitempty"`
-	User User   `yaml:"user,omitempty"`
-}
-type KubeConfig struct {
-	ApiVersion     string   `yaml:"apiVersion,omitempty"`
-	Kind           string   `yaml:"kind,omitempty"`
-	Preferences    struct{} `yaml:"preferences,omitempty"`
-	Clusters       Clusters `yaml:"clusters,omitempty"`
-	Contexts       Contexts `yaml:"contexts,omitempty"`
-	CurrentContext string   `yaml:"current-context,omitempty"`
-	Users          Users    `yaml:"users,omitempty"`
-}
-
-func cleanContextName(kubeConfig *KubeConfig) {
-	contextIdIndex := strings.Index(kubeConfig.Contexts[0].Name, "/")
-
-	if contextIdIndex != -1 {
-		kubeConfig.Contexts[0].Name = kubeConfig.Contexts[0].Name[0:contextIdIndex]
+		return fileContent
 	}
 }
 
-func cleanCurrentContext(kubeConfig *KubeConfig) {
-	contextIdIndex := strings.Index(kubeConfig.CurrentContext, "/")
+func cleanUp(kubeConfig *model.KubeConfig) {
+	for i := 0; i < len(kubeConfig.Contexts); i++ {
+		contextIdIndex := strings.Index(kubeConfig.Contexts[i].Name, "/")
 
-	if contextIdIndex != -1 {
-		kubeConfig.CurrentContext = kubeConfig.CurrentContext[0:contextIdIndex]
+		if contextIdIndex != -1 {
+			kubeConfig.Contexts[i].Name = kubeConfig.Contexts[i].Name[0:contextIdIndex]
+		}
+	}
+
+	if kubeConfig.CurrentContext != "" {
+		contextIdIndex := strings.Index(kubeConfig.CurrentContext, "/")
+
+		if contextIdIndex != -1 {
+			kubeConfig.CurrentContext = kubeConfig.CurrentContext[0:contextIdIndex]
+		}
 	}
 }
+
+func exit(message string, exitCode errors.Code) {
+	log.Println(message)
+	os.Exit(int(exitCode))
+}
+
+var InputFile string
 
 var rootCmd = &cobra.Command{
 	Use:   "cat your_iks_kubeconfig.yaml|ikscc",
 	Short: "IKS context cleaner",
-	Long: `Small utility to clean the IBMCloud IKS context names to make easier to use them with a toolchain for humans
-examples and usage of using your application. For example:
-
-cat $HOME/.kube/config | ikscc
-
-`,
+	Long:  "Small utility to clean the IBMCloud IKS kubeconfig context names",
 	Run: func(cmd *cobra.Command, args []string) {
-		fileContent, _ := ioutil.ReadAll(os.Stdin)
-		kubeConfig := &KubeConfig{}
+		fileContent := readFile(InputFile)
+		kubeConfig := &model.KubeConfig{}
 
-		err := yaml.Unmarshal([]byte(fileContent), &kubeConfig)
+		err := yaml.Unmarshal(fileContent, &kubeConfig)
 		if err != nil {
-			log.Fatalf("error: %v", err)
-		} else {
-			cleanContextName(kubeConfig)
-			cleanCurrentContext(kubeConfig)
-
-			yamlOutput, err := yaml.Marshal(&kubeConfig)
-			if err != nil {
-				log.Fatalf("Ops! There was an error: %v", err)
-			} else {
-				fmt.Print(string(yamlOutput))
-			}
+			exit(fmt.Sprintf("Error: %v", err), errors.UnmarshalError)
 		}
+
+		cleanUp(kubeConfig)
+
+		cleanYaml, err := yaml.Marshal(&kubeConfig)
+		if err != nil {
+			exit(fmt.Sprintf("Error: %v", err), errors.MarshalError)
+		}
+
+		fmt.Print(string(cleanYaml))
+		os.Exit(0)
 	},
 }
 
@@ -147,6 +110,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	rootCmd.PersistentFlags().StringVarP(&InputFile, "file", "f", "-", "Input file to clean")
 }
 
 func initConfig() {
