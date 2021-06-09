@@ -11,6 +11,8 @@ builds:
       - linux
       - windows
       - darwin
+    ldflags:
+      - -s -w -X github.com/jjuarez/iks-ctx-cleaner/cmd.Version={{ .Version }}
 archives:
   - replacements:
       darwin: Darwin
