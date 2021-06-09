@@ -114,6 +114,13 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVarP(&InputFile, "file", "f", "", "Input file to clean")
+
+	// Streams
+	rootCmd.SetOut(os.Stdout)
+	rootCmd.SetErr(os.Stderr)
+
+	// Adds the subcommands
+	rootCmd.AddCommand(versionCmd)
 }
 
 func initConfig() {
