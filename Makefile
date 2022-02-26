@@ -30,3 +30,6 @@ test: ## Testing all the things
 clean: ## Clean the generated products
 	@$(GOCLEAN)
 	@rm -f $(BINARY)
+
+.PHONY: all
+all: clean build test
