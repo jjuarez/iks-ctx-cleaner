@@ -26,15 +26,14 @@ func loadFile(fileName string) ([]byte, error) {
 		}
 
 		return fileContent, nil
-	} else {
-
-		fileContent, err = ioutil.ReadFile(fileName)
-		if err != nil {
-			return nil, fmt.Errorf("something went wrong reading from file: %s", fileName)
-		}
-
-		return fileContent, nil
 	}
+
+	fileContent, err = ioutil.ReadFile(fileName)
+	if err != nil {
+		return nil, fmt.Errorf("something went wrong reading from file: %s", fileName)
+	}
+
+	return fileContent, nil
 }
 
 func unmarshalYAML(fileContent []byte) (*model.KubeConfig, error) {
@@ -81,14 +80,14 @@ func exit(err error, exitCode codes.Code) {
 	os.Exit(int(exitCode))
 }
 
-var InputFile string
+var inputFile string
 
 var rootCmd = &cobra.Command{
 	Use:   "cat your_iks_kubeconfig.yaml|ikscc",
 	Short: "IKS context cleaner",
 	Long:  "Small utility to clean the IBMCloud IKS kubeconfig context names",
 	Run: func(cmd *cobra.Command, args []string) {
-		fileContent, err := loadFile(InputFile)
+		fileContent, err := loadFile(inputFile)
 		if err != nil {
 			exit(err, codes.ReadError)
 		}
@@ -107,13 +106,14 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+// Execute an entrypoint (TBC)
 func Execute() {
 	cobra.CheckErr(rootCmd.Execute())
 }
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVarP(&InputFile, "file", "f", "", "Input file to clean")
+	rootCmd.PersistentFlags().StringVarP(&inputFile, "file", "f", "", "YAML k8s context file to clean")
 
 	// Streams
 	rootCmd.SetOut(os.Stdout)
