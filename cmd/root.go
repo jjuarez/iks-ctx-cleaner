@@ -19,17 +19,21 @@ func loadFile(fileName string) ([]byte, error) {
 	var err error
 	var fileContent []byte
 
+	// The parameter should be a valid filename
 	if fileName == "-" {
-		fileContent, err = ioutil.ReadAll(os.Stdin)
-		if err != nil {
+		// We have to deal with the standard input
+		if fileContent, err = ioutil.ReadAll(os.Stdin); err != nil {
 			return nil, fmt.Errorf("something went wrong reading from stdin")
 		}
 
 		return fileContent, nil
 	}
 
-	fileContent, err = ioutil.ReadFile(fileName)
-	if err != nil {
+	if _, err := os.Stat(fileName); err != nil {
+		return nil, fmt.Errorf("The file: %s does not exists", fileName)
+	}
+
+	if fileContent, err = ioutil.ReadFile(fileName); err != nil {
 		return nil, fmt.Errorf("something went wrong reading from file: %s", fileName)
 	}
 
