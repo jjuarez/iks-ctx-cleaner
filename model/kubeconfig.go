@@ -8,6 +8,9 @@ type Cluster struct {
 	Server                   string `yaml:"server,omitempty"`
 }
 
+//
+// Clusters the collection of the cluster included in a context
+//
 type Clusters []struct {
 	Cluster Cluster `yaml:"cluster,omitempty"`
 	Name    string  `yaml:"name,omitempty"`
@@ -44,7 +47,9 @@ type UsersAuthProvider struct {
 }
 
 type User struct {
-	AuthProvider UsersAuthProvider `yaml:"auth-provider,omitempty"`
+	AuthProvider          UsersAuthProvider `yaml:"auth-provider,omitempty"`
+	ClientCertificateDAta string            `yaml:"client-certificate-data,omitempty"`
+	ClientKeyData         string            `yaml:"client-key-data,omitempty"`
 }
 
 type Users []struct {
@@ -59,11 +64,11 @@ type Preferences struct {
 // KubeConfig structure
 //
 type KubeConfig struct {
-	ApiVersion     string      `yaml:"apiVersion,omitempty"`
-	Kind           string      `yaml:"kind,omitempty"`
+	ApiVersion     string      `yaml:"apiVersion"`
+	Kind           string      `yaml:"kind"`
 	Preferences    Preferences `yaml:"preferences,omitempty"`
-	Clusters       Clusters    `yaml:"clusters,omitempty"`
-	Contexts       Contexts    `yaml:"contexts,omitempty"`
+	Clusters       Clusters    `yaml:"clusters"`
+	Contexts       Contexts    `yaml:"contexts"`
 	CurrentContext string      `yaml:"current-context,omitempty"`
 	Users          Users       `yaml:"users,omitempty"`
 }
