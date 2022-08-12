@@ -29,7 +29,7 @@ test: ## Testing all the things
 .PHONY: clean
 clean: ## Clean the generated products
 	@$(GOCLEAN)
-	@rm -f $(BINARY)
+	@rm -fr $(BINARY) ./dist/*
 
 .PHONY: all
 all: clean build test
