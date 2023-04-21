@@ -64,7 +64,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This project could help you to cleanup the default IKS kubernets kube config files to use them in combination with othe toolchain,
+This project could help you to cleanup the default IKS/OpenShift kubernets kube config files to use them in combination with othe toolchain,
 like kubectx, kubie, etc
 
 By default the IBMCloud CLI tool (kubernetes service plugin) gathers the configuration (kubeconfig) to access to your cluster using 
@@ -130,7 +130,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Javier Juarez - [@thejtoken](https://twitter.com/thejtoken) - javier.juarez@gmail.com
+Javier Juarez - [@thejtoken](https://hachyderm.io/@thejtoken) - javier.juarez@gmail.com
 
 Project Link: [https://github.com/jjuarez/iks-ctx-cleaner](https://github.com/jjuarez/iks-ctx-cleaner)
 
@@ -149,5 +149,5 @@ Project Link: [https://github.com/jjuarez/iks-ctx-cleaner](https://github.com/jj
 [license-url]: https://github.com/jjuarez/iks-ctx-cleaner/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/javierjuarez
+[mastodon-url]: https://hachyderm.io/@thejtoken
 [product-screenshot]: images/screenshot.png
-
