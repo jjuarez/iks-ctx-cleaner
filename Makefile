@@ -34,9 +34,9 @@ lint: ## Lint
 
 ./bin/$(EXECUTABLE):
 ifdef PROJECT_VERSION
-	@$(GOBUILD) -v -ldflags="-X github.com/jjuarez/iks-ctx-cleaner/cmd.Version='v$(PROJECT_VERSION)'"   -o ./bin/$(EXECUTABLE) main.go
+	@$(GOBUILD) -v -ldflags="-s -w -X github.com/jjuarez/iks-ctx-cleaner/cmd.Version='v$(PROJECT_VERSION)'"          -o ./bin/$(EXECUTABLE) main.go
 else
-	@$(GOBUILD) -v -ldflags="-X github.com/jjuarez/iks-ctx-cleaner/cmd.Version='nightly:$(PROJECT_CHANGESET)'" -o ./bin/$(EXECUTABLE) main.go
+	@$(GOBUILD) -v -ldflags="-s -w -X github.com/jjuarez/iks-ctx-cleaner/cmd.Version='nightly:$(PROJECT_CHANGESET)'" -o ./bin/$(EXECUTABLE) main.go
 endif
 
 
